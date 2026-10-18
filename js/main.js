@@ -24,7 +24,7 @@
     moq: '18 MT',
     moqTons: 18,
     lastUpdated: null, // set to ISO date string when prices change
-    disclaimer: 'Prices are supplier-based reference prices and may fluctuate with raw material costs. Final quotations are confirmed based on current pricing, quantity, packaging requirements, and shipping terms.',
+    disclaimer: 'Prices are supplier-based reference prices and are subject to change at any time without prior notice based on raw material and market fluctuations. Final quotations are confirmed based on current pricing, quantity, packaging requirements, and shipping terms.',
 
     terms: {
       EXW: {
