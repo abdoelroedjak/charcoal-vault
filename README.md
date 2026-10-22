@@ -1,6 +1,6 @@
-# Charcoal Vault — Shisha Charcoal Supply
+# Charcoal Vault — Shisha Charcoal Supply (React + Vite)
 
-Premium B2B coconut shell shisha charcoal trading and export supply website.
+Premium B2B coconut shell shisha charcoal trading and export supply web application, rewritten in React + Vite with TypeScript.
 
 ## Overview
 Charcoal Vault connects international buyers, shisha lounges, retailers, and distributors with reliable, supplier-backed coconut shell charcoal.
@@ -20,31 +20,58 @@ Charcoal Vault connects international buyers, shisha lounges, retailers, and dis
 - **Moisture**: 5.43%
 - **Volatile Matter**: 15.55%
 
+## Tech Stack & Architecture
+- **Framework**: React 19 + TypeScript
+- **Bundler & Dev Server**: Vite
+- **Styling**: Precision Dark Industrial Theme Design System (CSS custom properties, fluid typography, responsive layout)
+- **Interactivity**: Scroll-aware navigation, mobile navigation drawer, interactive FAQ accordion, live inquiry WhatsApp URL composer, FormSubmit AJAX with resilient fallbacks.
+
+## Development
+```bash
+# Install dependencies
+npm install
+
+# Start local development server (port 3000)
+npm run dev
+
+# Build production bundle
+npm run build
+```
+
 ## Project Structure
 ```
 charcoal-vault/
-├── index.html       # Main landing page & inquiry form
-├── css/
-│   └── style.css    # Responsive typography, dark industrial design system
-├── js/
-│   └── main.js      # Navigation, pricing model, ASTM specs, form handling
-├── img/             # Brand logos, product photography, lab report assets
-├── .gitignore
+├── index.html              # HTML entry point with metadata & JSON-LD structured data
+├── metadata.json           # Studio metadata configuration
+├── package.json            # Scripts & dependencies
+├── tsconfig.json           # TypeScript configuration
+├── vite.config.ts          # Vite configuration
+├── public/                 # Static assets (images, sitemaps, robots)
+│   ├── img/
+│   ├── robots.txt
+│   └── sitemap.xml
+├── src/
+│   ├── components/         # Modular React components
+│   │   ├── About.tsx
+│   │   ├── Contact.tsx
+│   │   ├── Faq.tsx
+│   │   ├── Footer.tsx
+│   │   ├── Hero.tsx
+│   │   ├── HowWeSupply.tsx
+│   │   ├── InfoStrip.tsx
+│   │   ├── MobileStickyCta.tsx
+│   │   ├── Navbar.tsx
+│   │   ├── Pricing.tsx
+│   │   ├── Products.tsx
+│   │   ├── Specifications.tsx
+│   │   ├── WhoWeSupply.tsx
+│   │   └── WhyCharcoal.tsx
+│   ├── data/
+│   │   └── charcoalData.ts # ASTM specs, pricing structure, business logic
+│   ├── types/
+│   │   └── index.ts        # TypeScript interfaces
+│   ├── App.tsx             # Root application orchestrator
+│   ├── index.css           # Global design system
+│   └── main.tsx            # React client mount
 └── README.md
 ```
-
-## Deployment Options
-
-### 1. GitHub Pages (Free, Instant)
-1. Push this repository to GitHub.
-2. In GitHub, go to **Settings** > **Pages**.
-3. Under **Build and deployment**, choose **Deploy from a branch**.
-4. Select `main` branch and `/ (root)` folder, then click **Save**.
-5. Your site will be live at `https://<username>.github.io/<repo-name>/`.
-
-### 2. Vercel / Netlify
-1. Connect your GitHub repository to [Vercel](https://vercel.com) or [Netlify](https://netlify.com).
-2. Framework preset: **Other** / **Static Site**.
-3. Build command: None (leave blank).
-4. Output directory: `./` (root).
-5. Click **Deploy**.

@@ -1,0 +1,8 @@
+{
+  "name": "Charcoal Vault",
+  "description": "Reliable B2B coconut shell charcoal supplier for shisha lounges, hookah bars, & bulk buyers. Direct Indonesia sourcing with flexible 18 MT orders.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

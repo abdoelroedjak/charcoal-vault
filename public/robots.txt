@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://charcoal-vault.vercel.app/sitemap.xml
