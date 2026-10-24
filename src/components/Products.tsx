@@ -28,8 +28,11 @@ export const Products: React.FC = () => {
             <div className="product-card__image">
               <img
                 src="/img/cube-charcoal.jpg"
-                alt="Premium coconut cube charcoal glowing with heat"
+                alt="Coconut shell cube charcoal for shisha and hookah"
                 className="product-card__img"
+                loading="lazy"
+                width={600}
+                height={400}
               />
             </div>
             <div className="product-card__content">
@@ -85,8 +88,11 @@ export const Products: React.FC = () => {
             <div className="product-card__image">
               <img
                 src="/img/bulk-supply.jpg"
-                alt="Commercial bulk shisha charcoal supply and lounge service"
+                alt="Bulk coconut shisha charcoal supply for B2B buyers"
                 className="product-card__img product-card__img--bulk"
+                loading="lazy"
+                width={600}
+                height={400}
               />
             </div>
             <div className="product-card__content">

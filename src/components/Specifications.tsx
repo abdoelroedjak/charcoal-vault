@@ -49,7 +49,7 @@ export const Specifications: React.FC = () => {
           <div className="specs__block-header">
             <div>
               <h3 className="specs__block-title">PROXIMATE LABORATORY ANALYSIS</h3>
-              <span className="specs__block-subtitle">Certified Test Report Data</span>
+              <span className="specs__block-subtitle">Supplier-Provided Test Report Data</span>
             </div>
             <span className="specs__block-tag">ASTM TEST METHODS</span>
           </div>

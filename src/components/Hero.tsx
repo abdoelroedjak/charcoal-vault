@@ -41,9 +41,10 @@ export const Hero: React.FC = () => {
         <div className="hero__image">
           <img
             src="/img/hero-charcoal.jpg"
-            alt="Premium glowing coconut shisha charcoal cubes"
+            alt="Coconut shell shisha charcoal cubes for B2B supply"
             className="hero__img"
-            loading="lazy"
+            loading="eager"
+            fetchPriority="high"
             width={1200}
             height={800}
           />
