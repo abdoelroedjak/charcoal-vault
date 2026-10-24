@@ -92,12 +92,4 @@ export interface FactoryPackagingFeature {
   detail: string;
 }
 
-declare global {
-  interface Window {
-    __CV_PRICING: PricingData;
-    __CV_LAB_SPECS: LabSpec[];
-    __CV_computePrices: () => void;
-    __CV_getPriceDisplay: typeof import('../data/charcoalData').getPriceDisplay;
-  }
-}
 

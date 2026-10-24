@@ -14,24 +14,10 @@ import { Faq } from './components/Faq';
 import { Contact } from './components/Contact';
 import { Footer } from './components/Footer';
 import { MobileStickyCta } from './components/MobileStickyCta';
-import {
-  INITIAL_PRICING,
-  CV_LAB_SPECS,
-  computeFinalPrices,
-  getPriceDisplay,
-} from './data/charcoalData';
 
 export const App: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [showMobileCta, setShowMobileCta] = useState(false);
-
-  // Expose pricing & specs to global window for console/inspection compatibility
-  useEffect(() => {
-    window.__CV_PRICING = INITIAL_PRICING;
-    window.__CV_LAB_SPECS = CV_LAB_SPECS;
-    window.__CV_computePrices = () => computeFinalPrices(INITIAL_PRICING);
-    window.__CV_getPriceDisplay = getPriceDisplay;
-  }, []);
 
   // Handle scroll events for sticky nav and mobile CTA
   useEffect(() => {

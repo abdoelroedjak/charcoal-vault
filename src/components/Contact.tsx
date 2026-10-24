@@ -20,6 +20,8 @@ export const Contact: React.FC = () => {
     message: '',
   });
 
+  const [honeypot, setHoneypot] = useState('');
+  const [lastSubmitTime, setLastSubmitTime] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitBtnText, setSubmitBtnText] = useState('REQUEST A QUOTE VIA EMAIL');
   const [btnSuccessStyle, setBtnSuccessStyle] = useState(false);
@@ -51,7 +53,10 @@ export const Contact: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!formData.name.trim() || !formData.email.trim()) {
+    const trimmedName = formData.name.trim();
+    const trimmedEmail = formData.email.trim();
+
+    if (!trimmedName || !trimmedEmail) {
       setStatus({
         type: 'error',
         message: 'Please fill in both your Name and Email address.',
@@ -59,12 +64,56 @@ export const Contact: React.FC = () => {
       return;
     }
 
-    setIsSubmitting(true);
-    setSubmitBtnText('SENDING INQUIRY...');
-    setStatus({ type: null, message: '' });
+    // Basic email format check
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) {
+      setStatus({
+        type: 'error',
+        message: 'Please provide a valid email address.',
+      });
+      return;
+    }
+
+    // Client-side rate-limit throttle (minimum 5s between attempts)
+    const now = Date.now();
+    if (now - lastSubmitTime < 5000) {
+      setStatus({
+        type: 'error',
+        message: 'Please wait a moment before submitting another inquiry.',
+      });
+      return;
+    }
 
     const mailtoUrl = buildMailtoUrl(formData);
     const waUrl = buildWhatsAppUrl(formData);
+
+    // Bot detection via honeypot: silently drop automated spam
+    if (honeypot.trim()) {
+      setSubmitBtnText('INQUIRY SENT TO EMAIL');
+      setBtnSuccessStyle(true);
+      setStatus({
+        type: 'success',
+        message: `Thank you, ${trimmedName}. Your inquiry has been sent directly to our team. We will review and reply promptly.`,
+        waUrl,
+        name: trimmedName,
+      });
+      setFormData({
+        name: '',
+        business: '',
+        whatsapp: '',
+        email: '',
+        product: '',
+        quantity: '',
+        message: '',
+      });
+      setHoneypot('');
+      return;
+    }
+
+    setLastSubmitTime(now);
+    setIsSubmitting(true);
+    setSubmitBtnText('SENDING INQUIRY...');
+    setStatus({ type: null, message: '' });
 
     const isLocalFile = window.location.protocol === 'file:';
 
@@ -81,18 +130,19 @@ export const Contact: React.FC = () => {
           Accept: 'application/json',
         },
         body: JSON.stringify({
-          _subject: `New Supply Inquiry — ${formData.name}${
-            formData.business ? ` [${formData.business}]` : ''
+          _subject: `New Supply Inquiry — ${trimmedName}${
+            formData.business.trim() ? ` [${formData.business.trim().slice(0, 80)}]` : ''
           }`,
           _template: 'table',
           _captcha: 'false',
-          name: formData.name,
-          business: formData.business || 'N/A',
-          whatsapp: formData.whatsapp || 'N/A',
-          email: formData.email,
+          _honey: '',
+          name: trimmedName.slice(0, 100),
+          business: formData.business.trim().slice(0, 100) || 'N/A',
+          whatsapp: formData.whatsapp.trim().slice(0, 40) || 'N/A',
+          email: trimmedEmail.slice(0, 120),
           product: PRODUCT_LABELS[formData.product] || formData.product || 'N/A',
-          quantity: formData.quantity || '18 MT (MOQ)',
-          message: formData.message || 'N/A',
+          quantity: formData.quantity.trim().slice(0, 60) || '18 MT (MOQ)',
+          message: formData.message.trim().slice(0, 2000) || 'N/A',
         }),
       });
 
@@ -216,6 +266,31 @@ export const Contact: React.FC = () => {
           </div>
 
           <form className="contact__form reveal" id="contactForm" onSubmit={handleSubmit}>
+            {/* Anti-spam honeypot (hidden from human visitors) */}
+            <div
+              style={{
+                position: 'absolute',
+                left: '-9999px',
+                top: '-9999px',
+                opacity: 0,
+                height: 0,
+                width: 0,
+                overflow: 'hidden',
+              }}
+              aria-hidden="true"
+            >
+              <label htmlFor="company_website_url">Company Website (Leave Blank)</label>
+              <input
+                type="text"
+                id="company_website_url"
+                name="_gotcha_hp"
+                value={honeypot}
+                onChange={(e) => setHoneypot(e.target.value)}
+                tabIndex={-1}
+                autoComplete="off"
+              />
+            </div>
+
             <div className="form-group">
               <label htmlFor={nameId} className="form-label">
                 Name

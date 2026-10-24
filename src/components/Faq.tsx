@@ -25,14 +25,17 @@ export const Faq: React.FC = () => {
                 </svg>
               </summary>
               <div className="faq__answer">
-                <p
-                  dangerouslySetInnerHTML={{
-                    __html: item.answer.replace(
-                      'subject to change at any time without prior notice',
-                      '<strong>subject to change at any time without prior notice</strong>'
-                    ),
-                  }}
-                />
+                <p>
+                  {item.answer.includes('subject to change at any time without prior notice') ? (
+                    <>
+                      {item.answer.split('subject to change at any time without prior notice')[0]}
+                      <strong>subject to change at any time without prior notice</strong>
+                      {item.answer.split('subject to change at any time without prior notice')[1]}
+                    </>
+                  ) : (
+                    item.answer
+                  )}
+                </p>
               </div>
             </details>
           ))}
