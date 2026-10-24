@@ -1,4 +1,4 @@
-import { PricingData, LabSpec, InquiryFormData } from '../types';
+import { PricingData, LabSpec, InquiryFormData, CatalogProduct } from '../types';
 
 export const TARGET_EMAIL = 'charcoalvault@gmail.com';
 export const TARGET_WA_NUM = '6281294779925';
@@ -6,9 +6,12 @@ export const TARGET_WA_DISPLAY = '+62 812-9477-9925';
 export const DEFAULT_WA_TEXT = 'Hello Charcoal Vault, I would like to inquire about shisha charcoal supply.';
 
 export const PRODUCT_LABELS: Record<string, string> = {
-  'cube-charcoal': 'Cube Charcoal',
-  'bulk-supply': 'Bulk Supply',
-  'other': 'Other / Special Request',
+  'charcoal-vault-gold': 'Charcoal Vault Gold (25x25x25mm / 72 Cubes)',
+  'charcoal-vault-blue': 'Charcoal Vault Blue (28x28x28mm / 48 Cubes)',
+  'charcoal-vault-hexa': 'Charcoal Vault Hexa (24x40mm / 64 Pcs)',
+  'cube-charcoal': 'Cube Charcoal (Standard Formats)',
+  'bulk-supply': 'Bulk & OEM Private Label Supply',
+  'other': 'Other / Custom Size & Packaging',
 };
 
 export const INITIAL_PRICING: PricingData = {
@@ -142,6 +145,141 @@ export const COMMERCIAL_PARAMS = [
   { label: 'MOQ', value: '18 Metric Tons (18 MT / 1x 20ft FCL)' },
   { label: 'ORIGIN', value: 'Available on request' },
   { label: 'AVAILABILITY', value: 'Subject to batch schedule & order confirmation' },
+];
+
+export const CATALOG_PRODUCTS: CatalogProduct[] = [
+  {
+    id: 'charcoal-vault-gold',
+    code: '01',
+    name: 'CHARCOAL VAULT GOLD',
+    tagline: 'Standard 25mm Cube Briquettes',
+    badge: '72 CUBES',
+    sizeBadge: '25 x 25 x 25 mm',
+    image: '/img/charcoal-vault-gold.jpg',
+    colorTheme: 'gold',
+    weight: '1 Kilogram',
+    contains: '72 cubes',
+    size: '25 x 25 x 25 mm',
+    specs: [
+      { label: 'Weight', value: '1 Kilogram' },
+      { label: 'Contains', value: '72 cubes' },
+      { label: 'Size', value: '25 x 25 x 25 mm' },
+      { label: 'Shape', value: 'Cube' },
+      { label: 'Material', value: '100% Coconut Shell' },
+      { label: 'Ash Content', value: '2% – 2.5%' },
+      { label: 'Burning Time', value: '90 – 120 Minutes' },
+      { label: 'Lighting Time', value: '10 Minutes' },
+    ],
+    description:
+      'The classic 25mm cube format designed for versatile heat management. Perfectly proportioned for standard hookah heads with smooth burning, zero odor, and minimal ash.',
+  },
+  {
+    id: 'charcoal-vault-blue',
+    code: '02',
+    name: 'CHARCOAL VAULT BLUE',
+    tagline: 'Large 28mm Cube Briquettes',
+    badge: '48 CUBES',
+    sizeBadge: '28 x 28 x 28 mm',
+    image: '/img/charcoal-vault-blue.jpg',
+    colorTheme: 'blue',
+    weight: '1 Kilogram',
+    contains: '48 cubes',
+    size: '28 x 28 x 28 mm',
+    specs: [
+      { label: 'Weight', value: '1 Kilogram' },
+      { label: 'Contains', value: '48 cubes' },
+      { label: 'Size', value: '28 x 28 x 28 mm' },
+      { label: 'Shape', value: 'Cube' },
+      { label: 'Material', value: '100% Coconut Shell' },
+      { label: 'Ash Content', value: '2% – 2.5%' },
+      { label: 'Burning Time', value: '90 – 120 Minutes' },
+      { label: 'Lighting Time', value: '10 Minutes' },
+    ],
+    description:
+      'Engineered for extended shisha sessions and high-traffic hookah lounges. The larger 28mm density sustains prolonged high caloric heat output with fewer coals needed.',
+  },
+  {
+    id: 'charcoal-vault-hexa',
+    code: '03',
+    name: 'CHARCOAL VAULT HEXA',
+    tagline: 'Hexagonal Cut Briquettes',
+    badge: '64 PCS',
+    sizeBadge: '24 x 40 mm',
+    image: '/img/charcoal-vault-hexa.jpg',
+    colorTheme: 'purple',
+    weight: '1 Kilogram',
+    contains: '64 pcs',
+    size: '24 x 40 mm',
+    specs: [
+      { label: 'Weight', value: '1 Kilogram' },
+      { label: 'Contains', value: '64 pcs' },
+      { label: 'Size', value: '24 x 40 mm' },
+      { label: 'Shape', value: 'Hexagonal (Hexa)' },
+      { label: 'Material', value: '100% Coconut Shell' },
+      { label: 'Ash Content', value: '2% – 2.5%' },
+      { label: 'Burning Time', value: '90 – 120 Minutes' },
+      { label: 'Lighting Time', value: '10 Minutes' },
+    ],
+    description:
+      'Precision-extruded hexagonal charcoal with central aeration channels. Provides stable resting on heat management devices with consistent continuous draft.',
+  },
+];
+
+export const FACTORY_CAPABILITIES = {
+  warehouse: [
+    { label: 'Warehouse Raw Material Capacity', value: '100 Tons', desc: 'Secure storage for aged, selected coconut shells' },
+    { label: 'Warehouse Ready to Ship Capacity', value: '75 Tons', desc: 'Finished goods storage awaiting container dispatch' },
+    { label: 'Production Availability', value: '50 Tons', desc: 'Immediate stock ready for prompt container allocation' },
+  ],
+  production: {
+    machinery: '1 Line + 1 Mixer Machine + 1 Printing Machine',
+    rates: [
+      { period: 'Daily', value: '3.8 Tons / Day' },
+      { period: 'Weekly', value: '25 Tons / Week' },
+      { period: 'Monthly', value: '100 Tons / Month' },
+    ],
+  },
+  drying: {
+    machinery: '3 Industrial Ovens (Capacity 2.5 Tons / Oven)',
+    rates: [
+      { period: 'Daily', value: '7.5 Tons / Day' },
+      { period: 'Weekly', value: '52.5 Tons / Week' },
+      { period: 'Monthly', value: '225 Tons / Month' },
+    ],
+  },
+  packaging: {
+    rates: [
+      { period: 'Daily', value: '4 Tons / Day' },
+      { period: 'Weekly', value: '28 Tons / Week' },
+      { period: 'Monthly', value: '120 Tons / Month' },
+    ],
+  },
+  innerPlastic: [
+    { feature: 'Sealing Technology', detail: 'Machine Sealed (Airtight moisture barrier)' },
+    { feature: 'Branding / Printing', detail: 'Printed with custom branding (By request)' },
+    { feature: 'Desiccant Preservation', detail: 'Silica Gel packet included (By request)' },
+  ],
+  boxCapability: [
+    { feature: 'Inner Box Material', detail: 'Inner Box 345 E–Flute (Duplex) 125 Medium E–Flute + 125 Kraft' },
+    { feature: 'Carton Sealing', detail: 'Machine Sealed for reinforced edge protection' },
+    { feature: 'Master Box', detail: 'Master Box Single Wall, One Printing Color (As requested)' },
+  ],
+};
+
+export const PRODUCT_PROFILE_SPECS = [
+  { parameter: 'Ash Content', value: '2% – 2.5%' },
+  { parameter: 'Moisture', value: '5% – 7%' },
+  { parameter: 'Volatile Matter', value: '15% – 16%' },
+  { parameter: 'Fixed Carbon', value: '77% – 83%' },
+  { parameter: 'Caloric Value', value: '7,000 – 7,500 Kcal/kg' },
+  { parameter: 'Odor', value: 'Odorless' },
+  { parameter: 'Smoke', value: 'Smokeless' },
+  { parameter: 'Period of Lighting', value: '10 Minutes' },
+  { parameter: 'Coal Burning', value: '90 – 120 Minutes' },
+  { parameter: 'Shape Finishing', value: 'Smooth' },
+  { parameter: 'Shape Cutting', value: 'Hard' },
+  { parameter: 'Color Before Use', value: 'Black Metallic' },
+  { parameter: 'Coal Power After Lighting', value: 'Hard' },
 ];
 
 export const WHY_POINTS = [

@@ -8,6 +8,7 @@ import { WhyCharcoal } from './components/WhyCharcoal';
 import { HowWeSupply } from './components/HowWeSupply';
 import { WhoWeSupply } from './components/WhoWeSupply';
 import { About } from './components/About';
+import { FactoryCapability } from './components/FactoryCapability';
 import { Specifications } from './components/Specifications';
 import { Faq } from './components/Faq';
 import { Contact } from './components/Contact';
@@ -106,6 +107,7 @@ export const App: React.FC = () => {
         <HowWeSupply />
         <WhoWeSupply />
         <About />
+        <FactoryCapability />
         <Specifications />
         <Faq />
         <Contact />

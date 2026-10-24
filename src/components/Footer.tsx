@@ -32,6 +32,9 @@ export const Footer: React.FC = () => {
             <a href="#about" onClick={(e) => scrollTo(e, '#about')}>
               About
             </a>
+            <a href="#capability" onClick={(e) => scrollTo(e, '#capability')}>
+              Capability
+            </a>
             <a href="#faq" onClick={(e) => scrollTo(e, '#faq')}>
               FAQ
             </a>

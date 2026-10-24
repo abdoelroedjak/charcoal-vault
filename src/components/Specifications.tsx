@@ -1,5 +1,5 @@
 import React from 'react';
-import { CV_LAB_SPECS, COMMERCIAL_PARAMS } from '../data/charcoalData';
+import { CV_LAB_SPECS, COMMERCIAL_PARAMS, PRODUCT_PROFILE_SPECS } from '../data/charcoalData';
 
 export const Specifications: React.FC = () => {
   const scrollTo = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
@@ -19,24 +19,23 @@ export const Specifications: React.FC = () => {
         <div className="section__header">
           <h2 className="section__title reveal">KNOW WHAT YOU'RE BUYING.</h2>
           <p className="section__subtitle reveal">
-            Independent proximate laboratory test results and standard trading parameters for Charcoal
-            Vault coconut shell shisha charcoal.
+            Company profile specifications, physical characteristics, and independent laboratory test results for Charcoal Vault coconut shell charcoal.
           </p>
         </div>
 
         {/* Key Performance Highlights */}
         <div className="specs__badges reveal">
           <div className="spec-badge">
-            <span className="spec-badge__value">1.79%</span>
-            <span className="spec-badge__label">Ash Content (Wet Basis)</span>
+            <span className="spec-badge__value">2% – 2.5%</span>
+            <span className="spec-badge__label">Ash Content</span>
           </div>
           <div className="spec-badge">
-            <span className="spec-badge__value">7,211+</span>
-            <span className="spec-badge__label">Kcal/kg Calorific Value</span>
+            <span className="spec-badge__value">7,000+</span>
+            <span className="spec-badge__label">Kcal/kg Caloric Value</span>
           </div>
           <div className="spec-badge">
-            <span className="spec-badge__value">77.2%</span>
-            <span className="spec-badge__label">Fixed Carbon (Wet)</span>
+            <span className="spec-badge__value">90 – 120</span>
+            <span className="spec-badge__label">Minutes Burning Duration</span>
           </div>
           <div className="spec-badge">
             <span className="spec-badge__value">ASTM</span>
@@ -44,7 +43,27 @@ export const Specifications: React.FC = () => {
           </div>
         </div>
 
-        {/* Laboratory Analysis Table */}
+        {/* Standard Supply Specifications Table (Company Profile) */}
+        <div className="specs__lab-block reveal">
+          <div className="specs__block-header">
+            <div>
+              <h3 className="specs__block-title">PHYSICAL &amp; COMBUSTION SPECIFICATIONS</h3>
+              <span className="specs__block-subtitle">Company Profile Guaranteed Supply Standards</span>
+            </div>
+            <span className="specs__block-tag">EXPORT STANDARD</span>
+          </div>
+
+          <div className="specs__profile-grid">
+            {PRODUCT_PROFILE_SPECS.map((item) => (
+              <div className="specs__profile-item" key={item.parameter}>
+                <span className="specs__profile-label">{item.parameter}</span>
+                <span className="specs__profile-val">{item.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Laboratory Analysis Table (Supplier Carsurin ASTM Report) */}
         <div className="specs__lab-block reveal">
           <div className="specs__block-header">
             <div>

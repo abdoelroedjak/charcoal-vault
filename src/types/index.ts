@@ -61,6 +61,37 @@ export interface FormStatusState {
   name?: string;
 }
 
+export interface ProductSpecItem {
+  label: string;
+  value: string;
+}
+
+export interface CatalogProduct {
+  id: string;
+  code: string;
+  name: string;
+  tagline: string;
+  badge: string;
+  sizeBadge: string;
+  image: string;
+  colorTheme: 'gold' | 'blue' | 'purple';
+  weight: string;
+  contains: string;
+  size: string;
+  specs: ProductSpecItem[];
+  description: string;
+}
+
+export interface FactoryCapacityRate {
+  period: string;
+  value: string;
+}
+
+export interface FactoryPackagingFeature {
+  feature: string;
+  detail: string;
+}
+
 declare global {
   interface Window {
     __CV_PRICING: PricingData;

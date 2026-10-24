@@ -291,9 +291,11 @@ export const Contact: React.FC = () => {
                 <option value="" disabled>
                   Select a product
                 </option>
-                <option value="cube-charcoal">Cube Charcoal</option>
-                <option value="bulk-supply">Bulk Supply</option>
-                <option value="other">Other / Not sure yet</option>
+                <option value="charcoal-vault-gold">Charcoal Vault Gold (72 cubes / 25mm)</option>
+                <option value="charcoal-vault-blue">Charcoal Vault Blue (48 cubes / 28mm)</option>
+                <option value="charcoal-vault-hexa">Charcoal Vault Hexa (64 pcs / 24x40mm)</option>
+                <option value="bulk-supply">Bulk &amp; OEM Private Label (18 MT Container)</option>
+                <option value="other">Other / Custom Sizing</option>
               </select>
             </div>
             <div className="form-group">

@@ -71,6 +71,11 @@ export const Navbar: React.FC<NavbarProps> = ({ isScrolled }) => {
               </a>
             </li>
             <li>
+              <a href="#capability" onClick={(e) => handleLinkClick(e, '#capability')}>
+                Capability
+              </a>
+            </li>
+            <li>
               <a href="#how-we-supply" onClick={(e) => handleLinkClick(e, '#how-we-supply')}>
                 How We Supply
               </a>
@@ -119,6 +124,11 @@ export const Navbar: React.FC<NavbarProps> = ({ isScrolled }) => {
           <li>
             <a href="#about" onClick={(e) => handleLinkClick(e, '#about')}>
               About
+            </a>
+          </li>
+          <li>
+            <a href="#capability" onClick={(e) => handleLinkClick(e, '#capability')}>
+              Capability
             </a>
           </li>
           <li>
