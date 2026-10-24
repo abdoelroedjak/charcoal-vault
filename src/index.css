@@ -230,15 +230,17 @@ ul {
 }
 
 .nav__profile-img {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  object-fit: cover;
+  height: 38px;
+  width: auto;
+  max-width: 75px;
+  border-radius: 4px;
+  object-fit: contain;
   border: 1px solid var(--c-border-2);
   background: #000;
   box-shadow: 0 0 12px rgba(0, 0, 0, 0.6);
   transition: transform 0.3s var(--ease), border-color 0.3s var(--ease), box-shadow 0.3s var(--ease);
   flex-shrink: 0;
+  padding: 2px 4px;
 }
 
 .nav__logo:hover .nav__profile-img {
@@ -2057,14 +2059,16 @@ ul {
 }
 
 .footer__profile-img {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
+  height: 36px;
+  width: auto;
+  max-width: 70px;
+  border-radius: 4px;
+  object-fit: contain;
   border: 1px solid var(--c-border-2);
   background: #000;
   flex-shrink: 0;
-  transition: border-color 0.3s var(--ease);
+  padding: 2px 4px;
+  transition: border-color 0.3s var(--ease), box-shadow 0.3s var(--ease);
 }
 
 .footer__brand:hover .footer__profile-img {
@@ -2287,8 +2291,9 @@ ul {
   }
 
   .nav__profile-img {
-    width: 36px;
-    height: 36px;
+    height: 32px;
+    width: auto;
+    max-width: 65px;
   }
 
   .hero__content {

@@ -18,7 +18,7 @@ export const Footer: React.FC = () => {
       <div className="container">
         <div className="footer__inner">
           <div className="footer__brand">
-            <img src="/img/logo-mark.jpg" alt="Charcoal Vault" className="footer__profile-img" />
+            <img src="/img/logo-mark.png" alt="Charcoal Vault" className="footer__profile-img" />
             <div>
               <span className="footer__name">CHARCOAL VAULT</span>
               <span className="footer__tagline">SHISHA CHARCOAL SUPPLY</span>

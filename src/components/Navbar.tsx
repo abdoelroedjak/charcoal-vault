@@ -55,7 +55,7 @@ export const Navbar: React.FC<NavbarProps> = ({ isScrolled }) => {
             className="nav__logo"
             aria-label="Charcoal Vault Home"
           >
-            <img src="/img/logo-mark.jpg" alt="Charcoal Vault" className="nav__profile-img" />
+            <img src="/img/logo-mark.png" alt="Charcoal Vault" className="nav__profile-img" />
             <span className="nav__brand">CHARCOAL VAULT</span>
           </a>
 
