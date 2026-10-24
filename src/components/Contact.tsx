@@ -128,19 +128,16 @@ export const Contact: React.FC = () => {
     const cleanBusiness = sanitizeHeader(formData.business).slice(0, 80);
 
     try {
-      const response = await fetch(`https://formsubmit.co/ajax/${TARGET_EMAIL}`, {
+      // 1. Route through dedicated Vercel Serverless Function (Server-Side Rate Limiting, Honeypot & Origin Guard)
+      let response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
         body: JSON.stringify({
-          _subject: `New Supply Inquiry — ${cleanName}${
-            cleanBusiness ? ` [${cleanBusiness}]` : ''
-          }`,
-          _template: 'table',
-          _captcha: 'false',
           _honey: '',
+          _gotcha_hp: honeypot,
           name: cleanName,
           business: cleanBusiness || 'N/A',
           whatsapp: sanitizeHeader(formData.whatsapp).slice(0, 40) || 'N/A',
@@ -150,6 +147,32 @@ export const Contact: React.FC = () => {
           message: formData.message.trim().slice(0, 2000) || 'N/A',
         }),
       });
+
+      // 2. Fallback to direct gateway if serverless endpoint is 404 (e.g. static dev server)
+      if (!response.ok && response.status === 404) {
+        response = await fetch(`https://formsubmit.co/ajax/${TARGET_EMAIL}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          body: JSON.stringify({
+            _subject: `New Supply Inquiry — ${cleanName}${
+              cleanBusiness ? ` [${cleanBusiness}]` : ''
+            }`,
+            _template: 'table',
+            _captcha: 'false',
+            _honey: '',
+            name: cleanName,
+            business: cleanBusiness || 'N/A',
+            whatsapp: sanitizeHeader(formData.whatsapp).slice(0, 40) || 'N/A',
+            email: trimmedEmail.slice(0, 120),
+            product: PRODUCT_LABELS[formData.product] || formData.product || 'N/A',
+            quantity: sanitizeHeader(formData.quantity).slice(0, 60) || '18 MT (MOQ)',
+            message: formData.message.trim().slice(0, 2000) || 'N/A',
+          }),
+        });
+      }
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
