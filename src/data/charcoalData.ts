@@ -31,7 +31,7 @@ export const INITIAL_PRICING: PricingData = {
         {
           id: 'exw-goods-only',
           packaging: 'Goods Only + Inner Plastic',
-          supplierPrice: 1475,
+          supplierPrice: 1505,
           pricingBasis: 'per_mt',
           shippingTerm: 'EXW',
           markup: null,
@@ -40,7 +40,7 @@ export const INITIAL_PRICING: PricingData = {
         {
           id: 'exw-masterbox',
           packaging: 'Masterbox Doublewall 10kg',
-          supplierPrice: 1550,
+          supplierPrice: 1580,
           pricingBasis: 'per_mt',
           shippingTerm: 'EXW',
           markup: null,
@@ -49,7 +49,7 @@ export const INITIAL_PRICING: PricingData = {
         {
           id: 'exw-innerbox-masterbox',
           packaging: 'Innerbox 1kg + Masterbox 10kg',
-          supplierPrice: 1600,
+          supplierPrice: 1630,
           pricingBasis: 'per_mt',
           shippingTerm: 'EXW',
           markup: null,
@@ -64,7 +64,7 @@ export const INITIAL_PRICING: PricingData = {
         {
           id: 'fob-goods-only',
           packaging: 'Goods Only + Inner Plastic',
-          supplierPrice: 1500,
+          supplierPrice: 1530,
           pricingBasis: 'per_mt',
           shippingTerm: 'FOB',
           markup: null,
@@ -73,7 +73,7 @@ export const INITIAL_PRICING: PricingData = {
         {
           id: 'fob-masterbox',
           packaging: 'Masterbox Doublewall 10kg',
-          supplierPrice: 1575,
+          supplierPrice: 1605,
           pricingBasis: 'per_mt',
           shippingTerm: 'FOB',
           markup: null,
@@ -82,7 +82,7 @@ export const INITIAL_PRICING: PricingData = {
         {
           id: 'fob-innerbox-masterbox',
           packaging: 'Innerbox 1kg + Masterbox 10kg',
-          supplierPrice: 1625,
+          supplierPrice: 1655,
           pricingBasis: 'per_mt',
           shippingTerm: 'FOB',
           markup: null,
@@ -92,7 +92,7 @@ export const INITIAL_PRICING: PricingData = {
     },
   },
   referencePrice: {
-    amount: 1450,
+    amount: 1505,
     term: 'EXW',
     packaging: 'Goods Only + Inner Plastic',
     note: 'Subject to current raw material pricing.',

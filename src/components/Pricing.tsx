@@ -74,7 +74,7 @@ export const Pricing: React.FC = () => {
         <div className="pricing__footer reveal">
           <p className="pricing__disclaimer">{INITIAL_PRICING.disclaimer}</p>
           <div className="pricing__ref-note">
-            <span>Supplier pricing available from USD 1,450 / MT* (MOQ: 18 MT)</span>
+            <span>Supplier pricing available from USD {INITIAL_PRICING.referencePrice.amount.toLocaleString()} / MT* (MOQ: 18 MT)</span>
             <span className="pricing__ref-asterisk">
               *EXW, Goods Only + Inner Plastic. Minimum order quantity: 18 Metric Tons (18 MT).
               Subject to current raw material pricing.

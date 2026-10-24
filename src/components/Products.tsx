@@ -76,7 +76,7 @@ export const Products: React.FC = () => {
                 <div className="product-card__price">
                   <span className="product-card__price-label">1KG BOX PACKAGING</span>
                   <span className="product-card__price-ref">
-                    Masterbox 10kg • EXW from USD 1,475/MT • FOB from USD 1,500/MT
+                    Masterbox 10kg • EXW from USD 1,505/MT • FOB from USD 1,530/MT
                   </span>
                   <div className="product-card__actions">
                     <a
