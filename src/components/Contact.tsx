@@ -122,6 +122,11 @@ export const Contact: React.FC = () => {
       return;
     }
 
+    // Strip linebreaks and control characters from header context to prevent CRLF injection
+    const sanitizeHeader = (text: string) => text.replace(/[\r\n\t]/g, ' ').replace(/\s+/g, ' ').trim();
+    const cleanName = sanitizeHeader(trimmedName).slice(0, 100);
+    const cleanBusiness = sanitizeHeader(formData.business).slice(0, 80);
+
     try {
       const response = await fetch(`https://formsubmit.co/ajax/${TARGET_EMAIL}`, {
         method: 'POST',
@@ -130,18 +135,18 @@ export const Contact: React.FC = () => {
           Accept: 'application/json',
         },
         body: JSON.stringify({
-          _subject: `New Supply Inquiry — ${trimmedName}${
-            formData.business.trim() ? ` [${formData.business.trim().slice(0, 80)}]` : ''
+          _subject: `New Supply Inquiry — ${cleanName}${
+            cleanBusiness ? ` [${cleanBusiness}]` : ''
           }`,
           _template: 'table',
           _captcha: 'false',
           _honey: '',
-          name: trimmedName.slice(0, 100),
-          business: formData.business.trim().slice(0, 100) || 'N/A',
-          whatsapp: formData.whatsapp.trim().slice(0, 40) || 'N/A',
+          name: cleanName,
+          business: cleanBusiness || 'N/A',
+          whatsapp: sanitizeHeader(formData.whatsapp).slice(0, 40) || 'N/A',
           email: trimmedEmail.slice(0, 120),
           product: PRODUCT_LABELS[formData.product] || formData.product || 'N/A',
-          quantity: formData.quantity.trim().slice(0, 60) || '18 MT (MOQ)',
+          quantity: sanitizeHeader(formData.quantity).slice(0, 60) || '18 MT (MOQ)',
           message: formData.message.trim().slice(0, 2000) || 'N/A',
         }),
       });
