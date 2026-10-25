@@ -3,7 +3,7 @@
 
 const ipRateLimit = new Map();
 
-export default async function handler(req, res) {
+async function handler(req, res) {
   // 1. Enforce POST only
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -129,3 +129,6 @@ export default async function handler(req, res) {
     });
   }
 }
+
+module.exports = handler;
+module.exports.default = handler;
