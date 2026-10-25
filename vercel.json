@@ -27,6 +27,9 @@
     }
   ],
   "rewrites": [
+    { "source": "/api/auth/(.*)", "destination": "/api/auth?route=$1" },
+    { "source": "/api/admin/(.*)", "destination": "/api/admin?route=$1" },
+    { "source": "/api/public/(.*)", "destination": "/api/public?route=$1" },
     { "source": "/admin/:path*", "destination": "/admin/index.html" },
     { "source": "/admin", "destination": "/admin/index.html" }
   ]
