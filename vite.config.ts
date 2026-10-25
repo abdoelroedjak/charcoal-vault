@@ -1,14 +1,14 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import { fileURLToPath, URL } from 'node:url';
+import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
   build: {
     rollupOptions: {
       input: {
-        main: fileURLToPath(new URL('index.html', import.meta.url)),
-        admin: fileURLToPath(new URL('admin/index.html', import.meta.url)),
+        main: path.resolve(__dirname, 'index.html'),
+        admin: path.resolve(__dirname, 'admin/index.html'),
       },
       output: {
         entryFileNames: (chunk) =>
