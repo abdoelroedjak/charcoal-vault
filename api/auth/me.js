@@ -1,8 +1,8 @@
-const { handleCors } = require('../_lib/cors');
-const { requireAuth } = require('../_lib/auth');
-const { getSupabase } = require('../_lib/supabase');
+import { handleCors } from '../../lib/cors.js';
+import { requireAuth } from '../../lib/auth.js';
+import { getSupabase } from '../../lib/supabase.js';
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   if (handleCors(req, res)) return;
 
   if (req.method !== 'GET') {
@@ -10,15 +10,10 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  let authUser;
   try {
-    authUser = await requireAuth(req);
-  } catch (err) {
-    return res.status(err.status || 401).json({ error: err.message });
-  }
-
-  try {
+    const authUser = await requireAuth(req);
     const supabase = getSupabase();
+
     const { data: user, error } = await supabase
       .from('admin_users')
       .select('id, email, role, is_active, created_at')
@@ -26,7 +21,7 @@ module.exports = async function handler(req, res) {
       .maybeSingle();
 
     if (error || !user || !user.is_active) {
-      return res.status(401).json({ error: 'User is inactive or not found' });
+      return res.status(401).json({ error: 'Unauthorized or inactive user.' });
     }
 
     return res.status(200).json({
@@ -34,11 +29,10 @@ module.exports = async function handler(req, res) {
         id: user.id,
         email: user.email,
         role: user.role,
-        created_at: user.created_at,
+        createdAt: user.created_at,
       },
     });
   } catch (err) {
-    console.error('Error fetching /api/auth/me:', err);
-    return res.status(500).json({ error: 'Internal server error' });
+    return res.status(err.status || 401).json({ error: err.message });
   }
-};
+}

@@ -1,7 +1,7 @@
-const { handleCors } = require('../_lib/cors');
-const { getSupabase } = require('../_lib/supabase');
+import { handleCors } from '../../lib/cors.js';
+import { getSupabase } from '../../lib/supabase.js';
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   if (handleCors(req, res)) return;
 
   if (req.method !== 'GET') {
@@ -13,18 +13,17 @@ module.exports = async function handler(req, res) {
 
   try {
     const supabase = getSupabase();
-    const { data, error } = await supabase
+    const { data: faqs, error } = await supabase
       .from('faqs')
       .select('id, question, answer, order_index')
       .eq('is_active', true)
       .is('deleted_at', null)
-      .order('order_index', { ascending: true })
-      .order('created_at', { ascending: true });
+      .order('order_index', { ascending: true });
 
     if (error) throw error;
-    return res.status(200).json({ faqs: data || [] });
+    return res.status(200).json({ faqs: faqs || [] });
   } catch (err) {
     console.error('Error fetching public FAQs:', err);
-    return res.status(500).json({ error: 'Failed to retrieve FAQs' });
+    return res.status(500).json({ error: 'Failed to fetch FAQs' });
   }
-};
+}

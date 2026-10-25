@@ -1,7 +1,7 @@
-const { handleCors } = require('../_lib/cors');
-const { getSupabase } = require('../_lib/supabase');
+import { handleCors } from '../../lib/cors.js';
+import { getSupabase } from '../../lib/supabase.js';
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   if (handleCors(req, res)) return;
 
   if (req.method !== 'GET') {
@@ -11,12 +11,13 @@ module.exports = async function handler(req, res) {
 
   res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=60');
 
+  const { key } = req.query;
+
   try {
     const supabase = getSupabase();
-    const { key } = req.query;
 
     if (key) {
-      const { data, error } = await supabase
+      const { data: section, error } = await supabase
         .from('sections')
         .select('*')
         .eq('section_key', key)
@@ -24,11 +25,11 @@ module.exports = async function handler(req, res) {
         .maybeSingle();
 
       if (error) throw error;
-      if (!data) return res.status(404).json({ error: `Section "${key}" not found` });
-      return res.status(200).json({ section: data });
+      if (!section) return res.status(404).json({ error: 'Section not found or disabled' });
+      return res.status(200).json({ section });
     }
 
-    const { data, error } = await supabase
+    const { data: sections, error } = await supabase
       .from('sections')
       .select('*')
       .eq('is_enabled', true)
@@ -36,18 +37,14 @@ module.exports = async function handler(req, res) {
 
     if (error) throw error;
 
-    // Convert array to a keyed dictionary for quick lookup by frontend
-    const sectionMap = {};
-    (data || []).forEach((sec) => {
-      sectionMap[sec.section_key] = sec;
+    const map = {};
+    (sections || []).forEach((s) => {
+      map[s.section_key] = s;
     });
 
-    return res.status(200).json({
-      sections: data || [],
-      byKey: sectionMap,
-    });
+    return res.status(200).json({ sections: map });
   } catch (err) {
     console.error('Error fetching public sections:', err);
-    return res.status(500).json({ error: 'Failed to retrieve site sections' });
+    return res.status(500).json({ error: 'Failed to fetch website copy' });
   }
-};
+}

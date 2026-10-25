@@ -1,10 +1,10 @@
-const { handleCors } = require('../_lib/cors');
-const { requireAuth } = require('../_lib/auth');
-const { getSupabase } = require('../_lib/supabase');
-const { productBody, validate } = require('../_lib/validate');
-const { log: auditLog } = require('../_lib/audit');
+import { handleCors } from '../../lib/cors.js';
+import { requireAuth } from '../../lib/auth.js';
+import { getSupabase } from '../../lib/supabase.js';
+import { productBody, productUpdateBody, validate } from '../../lib/validate.js';
+import { log as auditLog } from '../../lib/audit.js';
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   if (handleCors(req, res)) return;
 
   let authUser;
@@ -15,9 +15,8 @@ module.exports = async function handler(req, res) {
   }
 
   const supabase = getSupabase();
-  const { id } = req.query;
+  const { id, status } = req.query;
 
-  // GET: List all or single
   if (req.method === 'GET') {
     try {
       if (id) {
@@ -26,131 +25,101 @@ module.exports = async function handler(req, res) {
           .select('*')
           .eq('id', id)
           .maybeSingle();
-
         if (error) throw error;
         if (!data) return res.status(404).json({ error: 'Product not found' });
         return res.status(200).json({ product: data });
       }
 
-      let query = supabase.from('products').select('*');
-      if (req.query.status) {
-        query = query.eq('status', req.query.status);
-      }
-      query = query.order('order_index', { ascending: true }).order('created_at', { ascending: false });
+      let query = supabase.from('products').select('*').order('order_index', { ascending: true });
+      if (status) query = query.eq('status', status);
 
       const { data, error } = await query;
       if (error) throw error;
-
       return res.status(200).json({ products: data || [] });
     } catch (err) {
-      console.error('Error fetching products:', err);
-      return res.status(500).json({ error: err.message || 'Failed to fetch products' });
+      console.error('Error in GET /api/admin/products:', err);
+      return res.status(500).json({ error: err.message || 'Internal Server Error' });
     }
   }
 
-  // POST: Create product
   if (req.method === 'POST') {
     try {
-      const validated = validate(productBody, req.body || {});
-      const { data, error } = await supabase
+      const data = validate(productBody, req.body || {});
+      const { data: inserted, error } = await supabase
         .from('products')
-        .insert({
-          ...validated,
-          updated_at: new Date().toISOString(),
-        })
+        .insert(data)
         .select('*')
         .single();
 
-      if (error) {
-        if (error.code === '23505') {
-          return res.status(409).json({ error: 'A product with this slug already exists.' });
-        }
-        throw error;
-      }
+      if (error) throw error;
 
-      await auditLog(supabase, authUser.userId, 'CREATE_PRODUCT', 'products', data.id, {
-        slug: data.slug,
-        name: data.name,
+      await auditLog(supabase, authUser.userId, 'CREATE_PRODUCT', 'products', inserted.id, {
+        after: inserted,
       });
 
-      return res.status(201).json({ message: 'Product created successfully', product: data });
+      return res.status(201).json({ product: inserted });
     } catch (err) {
-      console.error('Error creating product:', err);
-      return res.status(err.status || 500).json({ error: err.message || 'Failed to create product' });
+      return res.status(err.status || 400).json({ error: err.message, details: err.errors });
     }
   }
 
-  // PUT: Update product
   if (req.method === 'PUT') {
-    const targetId = id || req.body?.id;
-    if (!targetId) {
-      return res.status(400).json({ error: 'Product ID is required for updating.' });
-    }
+    if (!id) return res.status(400).json({ error: 'Missing product ID in query parameter.' });
 
     try {
-      const validated = validate(productBody, req.body || {});
-      
-      const { data, error } = await supabase
+      const updateData = validate(productUpdateBody, req.body || {});
+      const { data: before } = await supabase.from('products').select('*').eq('id', id).single();
+
+      const { data: updated, error } = await supabase
         .from('products')
-        .update({
-          ...validated,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', targetId)
+        .update({ ...updateData, updated_at: new Date().toISOString() })
+        .eq('id', id)
         .select('*')
         .single();
 
-      if (error) {
-        if (error.code === '23505') {
-          return res.status(409).json({ error: 'Another product with this slug already exists.' });
-        }
-        throw error;
-      }
+      if (error) throw error;
 
-      await auditLog(supabase, authUser.userId, 'UPDATE_PRODUCT', 'products', targetId, {
-        updatedFields: Object.keys(validated),
+      await auditLog(supabase, authUser.userId, 'UPDATE_PRODUCT', 'products', id, {
+        before,
+        after: updated,
       });
 
-      return res.status(200).json({ message: 'Product updated successfully', product: data });
+      return res.status(200).json({ product: updated });
     } catch (err) {
-      console.error('Error updating product:', err);
-      return res.status(err.status || 500).json({ error: err.message || 'Failed to update product' });
+      return res.status(err.status || 400).json({ error: err.message, details: err.errors });
     }
   }
 
-  // DELETE: Soft delete
   if (req.method === 'DELETE') {
-    const targetId = id || req.body?.id;
-    if (!targetId) {
-      return res.status(400).json({ error: 'Product ID is required for deletion.' });
-    }
+    if (!id) return res.status(400).json({ error: 'Missing product ID in query parameter.' });
 
     try {
-      const { data, error } = await supabase
+      const { data: before } = await supabase.from('products').select('*').eq('id', id).single();
+
+      const { data: archived, error } = await supabase
         .from('products')
         .update({
           status: 'archived',
           deleted_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
-        .eq('id', targetId)
+        .eq('id', id)
         .select('*')
         .single();
 
       if (error) throw error;
 
-      await auditLog(supabase, authUser.userId, 'DELETE_PRODUCT', 'products', targetId, {
-        slug: data?.slug,
-        name: data?.name,
+      await auditLog(supabase, authUser.userId, 'ARCHIVE_PRODUCT', 'products', id, {
+        before,
+        after: archived,
       });
 
-      return res.status(200).json({ message: 'Product archived successfully', success: true });
+      return res.status(200).json({ message: 'Product archived successfully', product: archived });
     } catch (err) {
-      console.error('Error deleting product:', err);
-      return res.status(500).json({ error: err.message || 'Failed to delete product' });
+      return res.status(500).json({ error: err.message || 'Failed to archive product.' });
     }
   }
 
   res.setHeader('Allow', 'GET, POST, PUT, DELETE');
   return res.status(405).json({ error: 'Method Not Allowed' });
-};
+}

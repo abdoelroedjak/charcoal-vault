@@ -3,7 +3,7 @@
 
 const ipRateLimit = new Map();
 
-async function handler(req, res) {
+export default async function handler(req, res) {
   // 1. Enforce POST only
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -51,7 +51,6 @@ async function handler(req, res) {
   const body = req.body || {};
 
   // 4. Server-Side Honeypot Verification
-  // If either honeypot field is filled, silently drop without emailing
   if (body._gotcha_hp || body._honey) {
     return res.status(200).json({
       success: true,
@@ -72,7 +71,7 @@ async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid email address.' });
   }
 
-  // 6. Server-Side CRLF Sanitization (Prevent Email Header Injection)
+  // 6. Server-Side CRLF Sanitization
   const sanitize = (str) =>
     String(str || '')
       .replace(/[\r\n\t]/g, ' ')
@@ -129,6 +128,3 @@ async function handler(req, res) {
     });
   }
 }
-
-module.exports = handler;
-module.exports.default = handler;

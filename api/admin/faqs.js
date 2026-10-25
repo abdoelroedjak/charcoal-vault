@@ -1,10 +1,10 @@
-const { handleCors } = require('../_lib/cors');
-const { requireAuth } = require('../_lib/auth');
-const { getSupabase } = require('../_lib/supabase');
-const { faqBody, validate } = require('../_lib/validate');
-const { log: auditLog } = require('../_lib/audit');
+import { handleCors } from '../../lib/cors.js';
+import { requireAuth } from '../../lib/auth.js';
+import { getSupabase } from '../../lib/supabase.js';
+import { faqBody, faqUpdateBody, validate } from '../../lib/validate.js';
+import { log as auditLog } from '../../lib/audit.js';
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   if (handleCors(req, res)) return;
 
   let authUser;
@@ -17,126 +17,98 @@ module.exports = async function handler(req, res) {
   const supabase = getSupabase();
   const { id } = req.query;
 
-  // GET: List FAQs
   if (req.method === 'GET') {
     try {
-      if (id) {
-        const { data, error } = await supabase
-          .from('faqs')
-          .select('*')
-          .eq('id', id)
-          .maybeSingle();
-
-        if (error) throw error;
-        if (!data) return res.status(404).json({ error: 'FAQ not found' });
-        return res.status(200).json({ faq: data });
-      }
-
       const { data, error } = await supabase
         .from('faqs')
         .select('*')
         .is('deleted_at', null)
-        .order('order_index', { ascending: true })
-        .order('created_at', { ascending: true });
+        .order('order_index', { ascending: true });
 
       if (error) throw error;
       return res.status(200).json({ faqs: data || [] });
     } catch (err) {
-      console.error('Error fetching FAQs:', err);
-      return res.status(500).json({ error: err.message || 'Failed to fetch FAQs' });
+      return res.status(500).json({ error: err.message });
     }
   }
 
-  // POST: Create FAQ
   if (req.method === 'POST') {
     try {
-      const validated = validate(faqBody, req.body || {});
-      const { data, error } = await supabase
+      const data = validate(faqBody, req.body || {});
+      const { data: inserted, error } = await supabase
         .from('faqs')
-        .insert({
-          ...validated,
-          updated_at: new Date().toISOString(),
-        })
+        .insert(data)
         .select('*')
         .single();
 
       if (error) throw error;
 
-      await auditLog(supabase, authUser.userId, 'CREATE_FAQ', 'faqs', data.id, {
-        question: data.question,
+      await auditLog(supabase, authUser.userId, 'CREATE_FAQ', 'faqs', inserted.id, {
+        after: inserted,
       });
 
-      return res.status(201).json({ message: 'FAQ created successfully', faq: data });
+      return res.status(201).json({ faq: inserted });
     } catch (err) {
-      console.error('Error creating FAQ:', err);
-      return res.status(err.status || 500).json({ error: err.message || 'Failed to create FAQ' });
+      return res.status(err.status || 400).json({ error: err.message, details: err.errors });
     }
   }
 
-  // PUT: Update FAQ
   if (req.method === 'PUT') {
-    const targetId = id || req.body?.id;
-    if (!targetId) {
-      return res.status(400).json({ error: 'FAQ ID is required for update.' });
-    }
+    if (!id) return res.status(400).json({ error: 'FAQ ID required in query.' });
 
     try {
-      const validated = validate(faqBody, req.body || {});
-      const { data, error } = await supabase
+      const data = validate(faqUpdateBody, req.body || {});
+      const { data: before } = await supabase.from('faqs').select('*').eq('id', id).single();
+
+      const { data: updated, error } = await supabase
         .from('faqs')
-        .update({
-          ...validated,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', targetId)
+        .update({ ...data, updated_at: new Date().toISOString() })
+        .eq('id', id)
         .select('*')
         .single();
 
       if (error) throw error;
 
-      await auditLog(supabase, authUser.userId, 'UPDATE_FAQ', 'faqs', targetId, {
-        question: data.question,
+      await auditLog(supabase, authUser.userId, 'UPDATE_FAQ', 'faqs', id, {
+        before,
+        after: updated,
       });
 
-      return res.status(200).json({ message: 'FAQ updated successfully', faq: data });
+      return res.status(200).json({ faq: updated });
     } catch (err) {
-      console.error('Error updating FAQ:', err);
-      return res.status(err.status || 500).json({ error: err.message || 'Failed to update FAQ' });
+      return res.status(err.status || 400).json({ error: err.message, details: err.errors });
     }
   }
 
-  // DELETE: Soft delete
   if (req.method === 'DELETE') {
-    const targetId = id || req.body?.id;
-    if (!targetId) {
-      return res.status(400).json({ error: 'FAQ ID is required for deletion.' });
-    }
+    if (!id) return res.status(400).json({ error: 'FAQ ID required in query.' });
 
     try {
-      const { data, error } = await supabase
+      const { data: before } = await supabase.from('faqs').select('*').eq('id', id).single();
+
+      const { data: archived, error } = await supabase
         .from('faqs')
         .update({
           is_active: false,
           deleted_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
-        .eq('id', targetId)
+        .eq('id', id)
         .select('*')
         .single();
 
       if (error) throw error;
 
-      await auditLog(supabase, authUser.userId, 'DELETE_FAQ', 'faqs', targetId, {
-        question: data?.question,
+      await auditLog(supabase, authUser.userId, 'ARCHIVE_FAQ', 'faqs', id, {
+        before,
       });
 
-      return res.status(200).json({ message: 'FAQ deleted successfully', success: true });
+      return res.status(200).json({ message: 'FAQ archived', faq: archived });
     } catch (err) {
-      console.error('Error deleting FAQ:', err);
-      return res.status(500).json({ error: err.message || 'Failed to delete FAQ' });
+      return res.status(500).json({ error: err.message });
     }
   }
 
   res.setHeader('Allow', 'GET, POST, PUT, DELETE');
   return res.status(405).json({ error: 'Method Not Allowed' });
-};
+}

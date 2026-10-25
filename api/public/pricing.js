@@ -1,7 +1,7 @@
-const { handleCors } = require('../_lib/cors');
-const { getSupabase } = require('../_lib/supabase');
+import { handleCors } from '../../lib/cors.js';
+import { getSupabase } from '../../lib/supabase.js';
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   if (handleCors(req, res)) return;
 
   if (req.method !== 'GET') {
@@ -9,18 +9,15 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  // Short edge cache to guarantee freshness on market fluctuations
   res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=30');
 
   try {
     const supabase = getSupabase();
-
     const { data: rows, error } = await supabase
       .from('pricing')
-      .select('id, shipping_term, packaging, price_per_mt, currency, moq_tons, effective_date, notes')
+      .select('*')
       .eq('is_active', true)
       .is('deleted_at', null)
-      .order('shipping_term', { ascending: true })
       .order('price_per_mt', { ascending: true });
 
     if (error) throw error;
@@ -33,24 +30,37 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    // Structure grouped by shipping_term (EXW / FOB)
-    const terms = {
-      EXW: rows.filter((r) => r.shipping_term === 'EXW'),
-      FOB: rows.filter((r) => r.shipping_term === 'FOB'),
-    };
+    const exwOptions = rows.filter((r) => r.shipping_term === 'EXW');
+    const fobOptions = rows.filter((r) => r.shipping_term === 'FOB');
 
     return res.status(200).json({
       available: true,
       currency: 'USD',
       unit: 'MT',
-      pricing: rows,
-      terms,
+      unitLabel: 'Metric Ton (1,000 kg)',
+      moq: '18 MT',
+      lastUpdated: rows[0]?.updated_at || new Date().toISOString(),
+      disclaimer:
+        'Prices are supplier-based reference rates subject to market raw material changes. Binding quotes confirmed via official inquiry.',
+      terms: {
+        EXW: {
+          label: 'EXW',
+          description: 'Ex Works — buyer arranges pickup and container shipping',
+          options: exwOptions,
+        },
+        FOB: {
+          label: 'FOB',
+          description: 'Free on Board — price includes vessel port loading',
+          options: fobOptions,
+        },
+      },
     });
   } catch (err) {
     console.error('Error fetching public pricing:', err);
-    return res.status(500).json({
+    return res.status(200).json({
       available: false,
       message: 'Contact us for current pricing.',
+      pricing: [],
     });
   }
-};
+}

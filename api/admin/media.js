@@ -1,8 +1,8 @@
-const crypto = require('crypto');
-const { handleCors } = require('../_lib/cors');
-const { requireAuth } = require('../_lib/auth');
-const { getSupabase } = require('../_lib/supabase');
-const { log: auditLog } = require('../_lib/audit');
+import crypto from 'crypto';
+import { handleCors } from '../../lib/cors.js';
+import { requireAuth } from '../../lib/auth.js';
+import { getSupabase } from '../../lib/supabase.js';
+import { log as auditLog } from '../../lib/audit.js';
 
 const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
 
@@ -14,16 +14,13 @@ const MIME_MAP = {
   'image/gif': 'gif',
 };
 
-// Validate binary file signatures (Magic Bytes)
 function validateMagicBytes(buffer) {
   if (!buffer || buffer.length < 12) return null;
 
-  // JPEG: FF D8 FF
   if (buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
     return 'image/jpeg';
   }
 
-  // PNG: 89 50 4E 47 0D 0A 1A 0A
   if (
     buffer[0] === 0x89 &&
     buffer[1] === 0x50 &&
@@ -37,7 +34,6 @@ function validateMagicBytes(buffer) {
     return 'image/png';
   }
 
-  // GIF: GIF87a or GIF89a (47 49 46 38 37 61 or 47 49 46 38 39 61)
   if (
     buffer[0] === 0x47 &&
     buffer[1] === 0x49 &&
@@ -47,7 +43,6 @@ function validateMagicBytes(buffer) {
     return 'image/gif';
   }
 
-  // WEBP: RIFF....WEBP (52 49 46 46 .... 57 45 42 50)
   if (
     buffer[0] === 0x52 &&
     buffer[1] === 0x49 &&
@@ -64,7 +59,7 @@ function validateMagicBytes(buffer) {
   return null;
 }
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   if (handleCors(req, res)) return;
 
   let authUser;
@@ -77,7 +72,6 @@ module.exports = async function handler(req, res) {
   const supabase = getSupabase();
   const { id } = req.query;
 
-  // GET: List all media
   if (req.method === 'GET') {
     try {
       const { data, error } = await supabase
@@ -93,7 +87,6 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  // POST: Upload media
   if (req.method === 'POST') {
     try {
       let fileBuffer = null;
@@ -112,11 +105,9 @@ module.exports = async function handler(req, res) {
         altText = alt || '';
         title = itemTitle || originalName;
 
-        // Clean base64 header if present (e.g. data:image/png;base64,...)
         const base64Data = data.includes(';base64,') ? data.split(';base64,')[1] : data;
         fileBuffer = Buffer.from(base64Data, 'base64');
       } else {
-        // Collect raw stream chunks for multipart or binary uploads
         fileBuffer = await new Promise((resolve, reject) => {
           const chunks = [];
           req.on('data', (chunk) => chunks.push(chunk));
@@ -131,11 +122,10 @@ module.exports = async function handler(req, res) {
 
       if (fileBuffer.length > MAX_SIZE_BYTES) {
         return res.status(400).json({
-          error: `File size exceeds 5MB limit (${(fileBuffer.length / (1024 * 1024)).toFixed(2)} MB).`,
+          error: ,
         });
       }
 
-      // Validate magic bytes
       const detectedMime = validateMagicBytes(fileBuffer);
       if (!detectedMime || !MIME_MAP[detectedMime]) {
         return res.status(400).json({
@@ -145,9 +135,8 @@ module.exports = async function handler(req, res) {
 
       const ext = MIME_MAP[detectedMime];
       const randomHex = crypto.randomBytes(8).toString('hex');
-      const safeFilename = `${Date.now()}-${randomHex}.${ext}`;
+      const safeFilename = ;
 
-      // Upload to Supabase Storage bucket 'media'
       const { error: uploadError } = await supabase.storage
         .from('media')
         .upload(safeFilename, fileBuffer, {
@@ -156,19 +145,16 @@ module.exports = async function handler(req, res) {
         });
 
       if (uploadError) {
-        // If bucket does not exist or storage fails, log detail
         console.error('Supabase storage upload error:', uploadError);
-        throw new Error(`Storage error: ${uploadError.message}`);
+        throw new Error();
       }
 
-      // Get public URL
       const { data: publicUrlData } = supabase.storage
         .from('media')
         .getPublicUrl(safeFilename);
 
-      const publicUrl = publicUrlData?.publicUrl || `/uploads/${safeFilename}`;
+      const publicUrl = publicUrlData?.publicUrl || ;
 
-      // Insert metadata into media table
       const { data: mediaRow, error: dbError } = await supabase
         .from('media')
         .insert({
@@ -202,7 +188,6 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  // DELETE: Delete from storage and DB
   if (req.method === 'DELETE') {
     const targetId = id || req.body?.id;
     if (!targetId) {
@@ -220,10 +205,8 @@ module.exports = async function handler(req, res) {
         return res.status(404).json({ error: 'Media not found.' });
       }
 
-      // Remove from storage
       await supabase.storage.from('media').remove([mediaRow.filename]);
 
-      // Remove from table
       const { error: deleteError } = await supabase
         .from('media')
         .delete()
@@ -244,4 +227,4 @@ module.exports = async function handler(req, res) {
 
   res.setHeader('Allow', 'GET, POST, DELETE');
   return res.status(405).json({ error: 'Method Not Allowed' });
-};
+}

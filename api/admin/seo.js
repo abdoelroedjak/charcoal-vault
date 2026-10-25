@@ -1,12 +1,12 @@
-const { handleCors } = require('../_lib/cors');
-const { requireAuth } = require('../_lib/auth');
-const { getSupabase } = require('../_lib/supabase');
-const { seoBody, validate } = require('../_lib/validate');
-const { log: auditLog } = require('../_lib/audit');
+import { handleCors } from '../../lib/cors.js';
+import { requireAuth } from '../../lib/auth.js';
+import { getSupabase } from '../../lib/supabase.js';
+import { seoBody, validate } from '../../lib/validate.js';
+import { log as auditLog } from '../../lib/audit.js';
 
 const SINGLETON_ID = '00000000-0000-0000-0000-000000000002';
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   if (handleCors(req, res)) return;
 
   let authUser;
@@ -18,7 +18,6 @@ module.exports = async function handler(req, res) {
 
   const supabase = getSupabase();
 
-  // GET: Fetch SEO settings singleton
   if (req.method === 'GET') {
     try {
       const { data, error } = await supabase
@@ -28,24 +27,27 @@ module.exports = async function handler(req, res) {
         .maybeSingle();
 
       if (error) throw error;
-      return res.status(200).json({ seo: data || {} });
+      return res.status(200).json({ seo: data });
     } catch (err) {
-      console.error('Error fetching SEO settings:', err);
-      return res.status(500).json({ error: err.message || 'Failed to fetch SEO settings' });
+      return res.status(500).json({ error: err.message });
     }
   }
 
-  // PUT: Upsert SEO settings
   if (req.method === 'PUT') {
     try {
-      const validated = validate(seoBody, req.body || {});
+      const data = validate(seoBody, req.body || {});
+      const { data: before } = await supabase
+        .from('seo_settings')
+        .select('*')
+        .eq('id', SINGLETON_ID)
+        .maybeSingle();
 
-      const { data, error } = await supabase
+      const { data: updated, error } = await supabase
         .from('seo_settings')
         .upsert(
           {
             id: SINGLETON_ID,
-            ...validated,
+            ...data,
             updated_at: new Date().toISOString(),
           },
           { onConflict: 'id' }
@@ -56,16 +58,16 @@ module.exports = async function handler(req, res) {
       if (error) throw error;
 
       await auditLog(supabase, authUser.userId, 'UPDATE_SEO_SETTINGS', 'seo_settings', SINGLETON_ID, {
-        meta_title: data.meta_title,
+        before,
+        after: updated,
       });
 
-      return res.status(200).json({ message: 'SEO settings updated successfully', seo: data });
+      return res.status(200).json({ seo: updated });
     } catch (err) {
-      console.error('Error updating SEO settings:', err);
-      return res.status(err.status || 500).json({ error: err.message || 'Failed to update SEO settings' });
+      return res.status(err.status || 400).json({ error: err.message, details: err.errors });
     }
   }
 
   res.setHeader('Allow', 'GET, PUT');
   return res.status(405).json({ error: 'Method Not Allowed' });
-};
+}

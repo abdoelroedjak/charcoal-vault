@@ -1,14 +1,14 @@
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const { getSupabase } = require('../_lib/supabase');
-const { handleCors } = require('../_lib/cors');
-const { setAuthCookie } = require('../_lib/cookies');
-const { checkRateLimit, getClientIp } = require('../_lib/rateLimit');
-const { loginBody, validate } = require('../_lib/validate');
-const { log: auditLog } = require('../_lib/audit');
-const { JWT_SECRET } = require('../_lib/auth');
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { getSupabase } from '../../lib/supabase.js';
+import { handleCors } from '../../lib/cors.js';
+import { setAuthCookie } from '../../lib/cookies.js';
+import { checkRateLimit, getClientIp } from '../../lib/rateLimit.js';
+import { loginBody, validate } from '../../lib/validate.js';
+import { log as auditLog } from '../../lib/audit.js';
+import { JWT_SECRET } from '../../lib/auth.js';
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   if (handleCors(req, res)) return;
 
   if (req.method !== 'POST') {
@@ -17,7 +17,7 @@ module.exports = async function handler(req, res) {
   }
 
   const clientIp = getClientIp(req);
-  const rate = checkRateLimit(clientIp, 5, 10 * 60 * 1000); // 5 attempts per 10 minutes
+  const rate = checkRateLimit(clientIp, 5, 10 * 60 * 1000);
 
   if (!rate.allowed) {
     return res.status(429).json({
@@ -44,7 +44,6 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    // Brute force check in database login_attempts table over last 10 minutes
     const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000).toISOString();
     const { count: failedAttempts } = await supabase
       .from('login_attempts')
@@ -60,7 +59,6 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    // Lookup user
     const { data: user, error: userError } = await supabase
       .from('admin_users')
       .select('id, email, password_hash, role, is_active')
@@ -68,7 +66,6 @@ module.exports = async function handler(req, res) {
       .maybeSingle();
 
     if (userError || !user || !user.is_active) {
-      // Record failure attempt
       await supabase.from('login_attempts').insert({
         ip: clientIp,
         email: email,
@@ -81,7 +78,6 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    // Compare bcrypt password
     const isPasswordValid = await bcrypt.compare(password, user.password_hash);
     if (!isPasswordValid) {
       await supabase.from('login_attempts').insert({
@@ -96,14 +92,12 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    // Record successful login attempt
     await supabase.from('login_attempts').insert({
       ip: clientIp,
       email: email,
       success: true,
     });
 
-    // Generate JWT token (2 hours expiry)
     const token = jwt.sign(
       {
         userId: user.id,
@@ -114,10 +108,8 @@ module.exports = async function handler(req, res) {
       { expiresIn: '2h' }
     );
 
-    // Set HttpOnly cookie
     setAuthCookie(res, token);
 
-    // Audit log
     await auditLog(supabase, user.id, 'LOGIN', 'auth', user.id, {
       ip: clientIp,
       userAgent: req.headers['user-agent'] || 'unknown',
@@ -138,4 +130,4 @@ module.exports = async function handler(req, res) {
       message: 'An unexpected authentication error occurred.',
     });
   }
-};
+}
